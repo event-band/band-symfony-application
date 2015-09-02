@@ -2,7 +2,7 @@
     "name": "event-band/band-symfony-application",
     "license": "MIT",
     "type": "project",
-    "description": "The \"Symfony Standard Edition\" distribution",
+    "description": "Symfony2 Standard Edition Application to demonstrate how to properly configure and use Event-band stack",
     "autoload": {
         "psr-4": { "": "src/", "SymfonyStandard\\": "app/SymfonyStandard/" }
     },
