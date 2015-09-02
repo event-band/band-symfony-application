@@ -1,0 +1,95 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+    <div id="wrapper">
+        <div id="container">
+            <div id="welcome">
+                <h1><span>Welcome to</span></h1>
+                <h3><span>Event-band asynchronous event dispatching playground based on Symfony <code>{{ constant('Symfony\\Component\\HttpKernel\\Kernel::VERSION') }}</code> and event-band <code>~1.0</code></span></h3>
+            </div>
+
+            <div id="next">
+                <h2>Are you ready?</h2>
+                <p>You have to do some basic setup before proceed.</p>
+
+                <p class="step">1. Setup your RabbitMQ queues:<br />
+                    <code>$ php app/console event-band:setup</code>
+                </p>
+
+                <p class="step">2. Run PHP worker:<br />
+                    <code>$ php app/console event-band:dispatch acme.queue.app_1.echo_module.echo_queue &</code>
+                </p>
+
+                <p class="step">3. Open the log file:<br />
+                    <code>$ tail -f app/logs/dev.log</code>
+                </p>
+
+                <p class="step">4. Send your message:<br />
+                    {{ form_start(form, { attr: {id: 'sender'}, action: path('index_echo')}) }}
+                        <table class="sender">
+                            <tr>
+                                <td>{{  form_widget(form.message, { attr: { placeholder: 'Hi, guys!'}}) }}</td>
+                                <td>{{  form_widget(form.submit) }}</td>
+                            </tr>
+                        </table>
+                    {{ form_end(form) }}
+
+                    <script>
+                        (function() {
+                            var form = document.getElementById('sender');
+
+                            form.addEventListener('submit', function (e) {
+                                e.preventDefault();
+
+                                var xhr = new XMLHttpRequest();
+
+                                var message = encodeURIComponent(document.getElementById('{{ form.message.vars.id }}').value);
+                                var token = encodeURIComponent('{{ form._token.vars.data }}');
+
+                                xhr.open('POST', '{{ path('index_echo') }}', true);
+                                xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+                                xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded')
+                                xhr.send('{{ form.message.vars.full_name }}=' + message + '&{{ form._token.vars.full_name }}=' + token);
+                            });
+                        })();
+                    </script>
+                </p>
+
+                <p class="step">5. You should see this message in the dev.log:<br />
+                    <span class="step__sample">
+                        <code>[2015-09-02 15:15:28] app.DEBUG: Message from web received: Hi, guys! [] []</code>
+                        <code>[2015-09-02 15:15:28] event.DEBUG: Notified event "__event_band__.acme.queue.app_1.echo_module.echo_queue.echo_module.echo_event" to listener "EventBand\Adapter\Symfony\AdapterEventListener::__invoke". [] []</code>
+                        <code>[2015-09-02 15:15:28] event.DEBUG: Notified event "event_band.processor.dispatch_stop" to listener "EventBand\Adapter\Symfony\AdapterEventListener::__invoke". [] []</code>
+                    </span>
+                </p>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block stylesheets %}
+<style>
+    body { background: #F5F5F5; font: 18px/1.5 sans-serif; }
+    h1, h2 { line-height: 1.2; margin: 0 0 .5em; }
+    h1 { font-size: 36px; }
+    h2 { font-size: 21px; margin-bottom: 1em; }
+    p { margin: 0 0 1em 0; }
+    a { color: #0000F0; }
+    a:hover { text-decoration: none; }
+    code { background: #F5F5F5; max-width: 100px; padding: 2px 6px; word-wrap: break-word; }
+    #wrapper { background: #FFF; margin: 1em auto; max-width: 960px; width: 95%; }
+    #container { padding: 2em; }
+    #welcome { margin-bottom: 2em; }
+    #welcome h1 span { display: block; font-size: 75%; }
+
+    .step code { margin-left: 20px; }
+    .step__sample { display: block; overflow-x: auto; }
+    .step__sample code { display: block; max-width: none; white-space: nowrap; float: left; clear: left }
+    .sender { margin-left: 20px; margin-top: -20px; }
+
+    @media (min-width: 868px) {
+        #wrapper { width: 80%; margin: 2em auto; }
+        #status a, #next a { display: block; }
+    }
+</style>
+{% endblock %}

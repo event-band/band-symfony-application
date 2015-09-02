@@ -1,0 +1,121 @@
+imports:
+    - { resource: parameters.yml }
+    - { resource: services.yml }
+
+# Put parameters here that don't need to change on each machine where the app is deployed
+# http://symfony.com/doc/current/best_practices/configuration.html#application-related-configuration
+parameters:
+    locale: en
+
+framework:
+    #esi:             ~
+    #translator:      { fallbacks: ["%locale%"] }
+    secret:          "%secret%"
+    router:
+        resource: "%kernel.root_dir%/config/routing.yml"
+        strict_requirements: ~
+    form:            ~
+    csrf_protection: ~
+    validation:      { enable_annotations: true }
+    #serializer:      { enable_annotations: true }
+    templating:
+        engines: ['twig']
+        #assets_version: SomeVersionScheme
+    default_locale:  "%locale%"
+    trusted_hosts:   ~
+    trusted_proxies: ~
+    session:
+        # handler_id set to null will use default session handler from php.ini
+        handler_id:  ~
+    fragments:       ~
+    http_method_override: true
+
+# Twig Configuration
+twig:
+    debug:            "%kernel.debug%"
+    strict_variables: "%kernel.debug%"
+
+# Assetic Configuration
+assetic:
+    debug:          "%kernel.debug%"
+    use_controller: false
+    bundles:        [ ]
+    #java: /usr/bin/java
+    filters:
+        cssrewrite: ~
+        #closure:
+        #    jar: "%kernel.root_dir%/Resources/java/compiler.jar"
+        #yui_css:
+        #    jar: "%kernel.root_dir%/Resources/java/yuicompressor-2.4.7.jar"
+
+# Event-band configuration
+event_band:
+    transports:
+        amqp:
+            driver: amqplib # This will use "event-band/amqplib-transport" from your composer.json
+
+            connections:
+                default:
+                    host:                 127.0.0.1
+                    port:                 5672
+                    virtual_host:         /
+                    user:                 guest
+                    password:             guest
+
+                    exchanges:
+                        acme.exchange:
+                            type:                 fanout
+                            transient:            false
+                            auto_delete:          false
+                            internal:             false
+
+                        acme.exchange.app_1:
+                            type:                 topic
+                            transient:            false
+                            auto_delete:          false
+                            internal:             false
+                            bind:
+                                acme.exchange: [] # catch all messages from "acme.exchange" this way
+
+                    queues:
+                        acme.queue.app_1.echo_module.echo_queue:
+                            transient:            false
+                            auto_delete:          false
+                            exclusive:            false
+                            bind:
+                                acme.exchange.app_1:
+                                    - "echo_module.echo_event"
+
+            converters:
+                default:
+                    serialize:
+                        serializer: serializer
+
+    serializers:
+        serializer: # "serializer" it is serializer service id in service container
+            jms:
+                format: json
+
+    publishers:
+        acme.exchange:
+            events:
+                - "echo_module.echo_event"
+
+            propagation:          true
+            priority:             1024
+            transport:
+                amqp:
+                    connection:           default
+                    exchange:             acme.exchange
+                    router:               default
+                    converter:            default
+                    persistent:           true
+                    mandatory:            false
+                    immediate:            false
+
+    consumers:
+        acme.queue.app_1.echo_module.echo_queue:
+            transport:
+                amqp:
+                    connection:           default
+                    converter:            default
