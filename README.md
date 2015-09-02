@@ -19,3 +19,4 @@ php app/console server:run
 
 Open [http://127.0.0.1:8000](http://127.0.0.1:8000) and follow the instrudtions.
 
+![Application.png](https://cloud.githubusercontent.com/assets/104727/9636134/aa60e570-51a2-11e5-8aea-bff633394b92.png)
