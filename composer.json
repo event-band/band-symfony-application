@@ -9,14 +9,13 @@
     "require": {
         "php": ">=5.3.9",
 
-        "symfony/symfony": "2.7.*",
+        "symfony/symfony": "~2.7.0",
         "symfony/assetic-bundle": "~2.3",
         "symfony/monolog-bundle": "~2.4",
 
         "sensio/distribution-bundle": "~4.0",
         "sensio/framework-extra-bundle": "~3.0,>=3.0.2",
 
-        "che/console-signals": "dev-master",
         "event-band/symfony-bundle": "~1.0",
         "event-band/jms-serializer": "~1.0",
         "event-band/amqplib-transport": "~1.0",
