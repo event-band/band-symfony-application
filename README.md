@@ -8,7 +8,7 @@ Installation
 Install using composer:
 
 ```
-$ php composer.phar create-project "event-band/band-symfony-application" "~1.0.0@dev"
+$ php composer.phar create-project --stability="dev" "event-band/band-symfony-application:~1.0.0@dev" band-symfony-application
 ```
 
 Run built-in server:
